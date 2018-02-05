@@ -53,9 +53,8 @@ public class ImageWidget extends BaseImageWidget {
 
     private boolean selfie;
 
-    public ImageWidget(Context context, final FormEntryPrompt prompt, final boolean selfie) {
+    public ImageWidget(Context context, final FormEntryPrompt prompt) {
         super(context, prompt);
-        this.selfie = selfie;
     }
 
     @Override
@@ -82,6 +81,10 @@ public class ImageWidget extends BaseImageWidget {
     @Override
     protected void setUpLayout() {
         super.setUpLayout();
+
+        String appearance = getFormEntryPrompt().getAppearanceHint();
+        selfie = appearance != null && appearance.equalsIgnoreCase("selfie");
+
         captureButton = getSimpleButton(getContext().getString(R.string.capture_image), R.id.capture_image);
         captureButton.setEnabled(!getFormEntryPrompt().isReadOnly());
 
