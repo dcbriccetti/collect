@@ -58,11 +58,7 @@ public abstract class BaseImageWidget extends QuestionWidget implements FileWidg
 
     @Override
     public IAnswerData getAnswer() {
-        if (binaryName != null) {
-            return new StringData(binaryName);
-        } else {
-            return null;
-        }
+        return binaryName == null ? null : new StringData(binaryName);
     }
 
     @Override

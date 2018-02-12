@@ -104,12 +104,8 @@ public class AlignedImageWidget extends BaseImageWidget {
             Timber.w("Only have %d alignment values", splits.length);
         }
         iarray = new int[6];
-        for (int i = 0; i < 6; ++i) {
-            if (splits.length <= i) {
-                iarray[i] = 0;
-            } else {
-                iarray[i] = Integer.parseInt(splits[i]);
-            }
+        for (int i = 0; i < splits.length; i++) {
+            iarray[i] = Integer.parseInt(splits[i]);
         }
 
         instanceFolder = getInstanceFolder();
