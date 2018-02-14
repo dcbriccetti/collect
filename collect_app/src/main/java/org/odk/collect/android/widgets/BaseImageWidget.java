@@ -18,9 +18,11 @@ package org.odk.collect.android.widgets;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
@@ -31,6 +33,7 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.R;
+import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.utilities.MediaUtils;
 import org.odk.collect.android.utilities.ViewIds;
 import org.odk.collect.android.widgets.interfaces.FileWidget;
@@ -131,6 +134,28 @@ public abstract class BaseImageWidget extends QuestionWidget implements FileWidg
         super.cancelLongPress();
         if (imageView != null) {
             imageView.cancelLongPress();
+        }
+    }
+
+    protected void setUpBinary() {
+        if (binaryName != null) {
+            DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
+            int screenWidth = metrics.widthPixels;
+            int screenHeight = metrics.heightPixels;
+
+            File f = new File(getInstanceFolder() + File.separator + binaryName);
+
+            Bitmap bmp = null;
+            if (f.exists()) {
+                bmp = FileUtils.getBitmapScaledToDisplay(f,
+                        screenHeight, screenWidth);
+                if (bmp == null) {
+                    errorTextView.setVisibility(View.VISIBLE);
+                }
+            }
+
+            imageView = getAnswerImageView(bmp);
+            answerLayout.addView(imageView);
         }
     }
 

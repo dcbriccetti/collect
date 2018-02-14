@@ -20,9 +20,7 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -30,7 +28,6 @@ import android.widget.Toast;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.R;
 import org.odk.collect.android.application.Collect;
-import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.utilities.MediaUtils;
 
 import java.io.File;
@@ -129,28 +126,6 @@ public class AlignedImageWidget extends BaseImageWidget {
             chooseButton.setVisibility(View.GONE);
         }
         errorTextView.setVisibility(View.GONE);
-    }
-
-    private void setUpBinary() {
-        // Only add the imageView if the user has taken a picture
-        if (binaryName != null) {
-            DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
-            int screenWidth = metrics.widthPixels;
-            int screenHeight = metrics.heightPixels;
-
-            File f = new File(instanceFolder + File.separator + binaryName);
-
-            Bitmap bmp = null;
-            if (f.exists()) {
-                bmp = FileUtils.getBitmapScaledToDisplay(f, screenHeight, screenWidth);
-                if (bmp == null) {
-                    errorTextView.setVisibility(View.VISIBLE);
-                }
-            }
-
-            imageView = getAnswerImageView(bmp);
-            answerLayout.addView(imageView);
-        }
     }
 
     @Override

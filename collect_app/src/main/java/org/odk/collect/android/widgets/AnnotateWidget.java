@@ -104,7 +104,8 @@ public class AnnotateWidget extends BaseImageWidget {
         errorTextView.setVisibility(View.GONE);
     }
 
-    private void setUpBinary() {
+    @Override
+    protected void setUpBinary() {
         // Only add the imageView if the user has taken a picture
         if (binaryName != null) {
             if (!getFormEntryPrompt().isReadOnly()) {
