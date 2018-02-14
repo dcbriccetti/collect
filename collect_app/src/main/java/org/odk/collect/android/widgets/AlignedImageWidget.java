@@ -67,10 +67,13 @@ public class AlignedImageWidget extends BaseImageWidget {
 
     private String instanceFolder;
     
-    private int[] iarray;
+    private int[] iarray = new int[6];
 
     public AlignedImageWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
+        setUpLayout();
+        setUpBinary();
+        addAnswerView(answerLayout);
     }
 
     @Override
@@ -103,7 +106,7 @@ public class AlignedImageWidget extends BaseImageWidget {
         if (splits.length != 6) {
             Timber.w("Only have %d alignment values", splits.length);
         }
-        iarray = new int[6];
+
         for (int i = 0; i < splits.length; i++) {
             iarray[i] = Integer.parseInt(splits[i]);
         }
@@ -128,8 +131,7 @@ public class AlignedImageWidget extends BaseImageWidget {
         errorTextView.setVisibility(View.GONE);
     }
 
-    @Override
-    protected void setUpBinary() {
+    private void setUpBinary() {
         // Only add the imageView if the user has taken a picture
         if (binaryName != null) {
             DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();

@@ -55,6 +55,9 @@ public class ImageWidget extends BaseImageWidget {
 
     public ImageWidget(Context context, final FormEntryPrompt prompt) {
         super(context, prompt);
+        setUpLayout();
+        setUpBinary();
+        addAnswerView(answerLayout);
     }
 
     @Override
@@ -118,12 +121,10 @@ public class ImageWidget extends BaseImageWidget {
                 errorTextView.setText(R.string.error_front_camera_unavailable);
                 errorTextView.setVisibility(View.VISIBLE);
             }
-
         }
     }
 
-    @Override
-    protected void setUpBinary() {
+    private void setUpBinary() {
         // Only add the imageView if the user has taken a picture
         if (binaryName != null) {
             DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();

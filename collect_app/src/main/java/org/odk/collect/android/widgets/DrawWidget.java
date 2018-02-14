@@ -48,6 +48,9 @@ public class DrawWidget extends BaseImageWidget {
 
     public DrawWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
+        setUpLayout();
+        setUpBinary();
+        addAnswerView(answerLayout);
     }
 
     @Override
@@ -74,8 +77,7 @@ public class DrawWidget extends BaseImageWidget {
         errorTextView.setVisibility(View.GONE);
     }
 
-    @Override
-    protected void setUpBinary() {
+    private void setUpBinary() {
         // Only add the imageView if the user has signed
         if (binaryName != null) {
             DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();

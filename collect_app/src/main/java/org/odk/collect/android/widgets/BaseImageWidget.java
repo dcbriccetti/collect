@@ -48,12 +48,6 @@ public abstract class BaseImageWidget extends QuestionWidget implements FileWidg
 
     public BaseImageWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
-
-        setUpLayout();
-        // retrieve answer from data model and update ui
-        binaryName = prompt.getAnswerText();
-        setUpBinary();
-        addAnswerView(answerLayout);
     }
 
     @Override
@@ -149,7 +143,7 @@ public abstract class BaseImageWidget extends QuestionWidget implements FileWidg
 
         answerLayout = new LinearLayout(getContext());
         answerLayout.setOrientation(LinearLayout.VERTICAL);
-    }
 
-    protected abstract void setUpBinary();
+        binaryName = getFormEntryPrompt().getAnswerText();
+    }
 }

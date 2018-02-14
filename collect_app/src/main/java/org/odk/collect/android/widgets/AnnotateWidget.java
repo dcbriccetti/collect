@@ -54,6 +54,9 @@ public class AnnotateWidget extends BaseImageWidget {
 
     public AnnotateWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
+        setUpLayout();
+        setUpBinary();
+        addAnswerView(answerLayout);
     }
 
     @Override
@@ -101,8 +104,7 @@ public class AnnotateWidget extends BaseImageWidget {
         errorTextView.setVisibility(View.GONE);
     }
 
-    @Override
-    protected void setUpBinary() {
+    private void setUpBinary() {
         // Only add the imageView if the user has taken a picture
         if (binaryName != null) {
             if (!getFormEntryPrompt().isReadOnly()) {
