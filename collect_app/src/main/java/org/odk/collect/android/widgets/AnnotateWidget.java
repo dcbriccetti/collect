@@ -55,7 +55,10 @@ public class AnnotateWidget extends BaseImageWidget {
     public AnnotateWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
         setUpLayout();
-        setUpBinary();
+        Bitmap bmp = setUpBinary();
+        if (bmp != null && bmp.getHeight() > bmp.getWidth()) {
+            screenOrientation = 1; // portrait
+        }
         addAnswerView(answerLayout);
     }
 
@@ -78,7 +81,7 @@ public class AnnotateWidget extends BaseImageWidget {
         chooseButton.setEnabled(!getFormEntryPrompt().isReadOnly());
 
         annotateButton = getSimpleButton(getContext().getString(R.string.markup_image), R.id.markup_image);
-        annotateButton.setEnabled(false);
+        annotateButton.setEnabled(!(binaryName == null || getFormEntryPrompt().isReadOnly()));
         annotateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -102,34 +105,6 @@ public class AnnotateWidget extends BaseImageWidget {
             annotateButton.setVisibility(View.GONE);
         }
         errorTextView.setVisibility(View.GONE);
-    }
-
-    @Override
-    protected void setUpBinary() {
-        // Only add the imageView if the user has taken a picture
-        if (binaryName != null) {
-            if (!getFormEntryPrompt().isReadOnly()) {
-                annotateButton.setEnabled(true);
-            }
-            DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
-            int screenWidth = metrics.widthPixels;
-            int screenHeight = metrics.heightPixels;
-
-            File f = new File(getInstanceFolder() + File.separator + binaryName);
-
-            Bitmap bmp = null;
-            if (f.exists()) {
-                bmp = FileUtils.getBitmapScaledToDisplay(f,
-                        screenHeight, screenWidth);
-                if (bmp == null) {
-                    errorTextView.setVisibility(View.VISIBLE);
-                } else if (bmp.getHeight() > bmp.getWidth()) {
-                    screenOrientation = 1; // portrait
-                }
-            }
-            imageView = getAnswerImageView(bmp);
-            answerLayout.addView(imageView);
-        }
     }
 
     private void launchAnnotateActivity() {

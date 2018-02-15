@@ -137,7 +137,8 @@ public abstract class BaseImageWidget extends QuestionWidget implements FileWidg
         }
     }
 
-    protected void setUpBinary() {
+    protected Bitmap setUpBinary() {
+        Bitmap bmp = null;
         if (binaryName != null) {
             DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
             int screenWidth = metrics.widthPixels;
@@ -145,7 +146,6 @@ public abstract class BaseImageWidget extends QuestionWidget implements FileWidg
 
             File f = new File(getInstanceFolder() + File.separator + binaryName);
 
-            Bitmap bmp = null;
             if (f.exists()) {
                 bmp = FileUtils.getBitmapScaledToDisplay(f,
                         screenHeight, screenWidth);
@@ -157,6 +157,7 @@ public abstract class BaseImageWidget extends QuestionWidget implements FileWidg
             imageView = getAnswerImageView(bmp);
             answerLayout.addView(imageView);
         }
+        return bmp;
     }
 
     protected abstract void onImageClick();
