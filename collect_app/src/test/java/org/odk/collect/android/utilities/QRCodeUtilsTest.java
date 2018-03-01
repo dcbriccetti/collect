@@ -35,6 +35,18 @@ import static org.odk.collect.android.utilities.QRCodeUtils.QR_CODE_FILEPATH;
 @RunWith(RobolectricTestRunner.class)
 public class QRCodeUtilsTest {
 
+    static class GenerationResults {
+        final AtomicBoolean isFinished = new AtomicBoolean(false);
+        final AtomicReference<Bitmap> generatedBitmap = new AtomicReference<>();
+        final AtomicReference<Throwable> errorThrown = new AtomicReference<>();
+
+        private void assertGeneratedOk() {
+            assertNotNull(generatedBitmap.get());
+            assertNull(errorThrown.get());
+            assertTrue(isFinished.get());
+        }
+    }
+
     private final File savedFile = new File(QR_CODE_FILEPATH);
     private final File md5File = new File(MD5_CACHE_PATH);
 
@@ -53,32 +65,21 @@ public class QRCodeUtilsTest {
 
     @Test
     public void generateQRCodeIfNoCacheExists() throws DataFormatException, FormatException, ChecksumException, NotFoundException, IOException, NoSuchAlgorithmException {
-        AtomicBoolean isFinished = new AtomicBoolean(false);
-        AtomicReference<Bitmap> generatedBitmap = new AtomicReference<>();
-        AtomicReference<Throwable> errorThrown = new AtomicReference<>();
-        ArrayList<String> list = new ArrayList<>();
-
         // verify that QRCode and md5 cache files don't exist
         assertFalse(savedFile.exists());
         assertFalse(md5File.exists());
 
-        // subscribe to the QRCode generator in the same thread
-        QRCodeUtils.getQRCodeGeneratorObservable(list)
-                .subscribe(generatedBitmap::set, errorThrown::set, () -> isFinished.set(true));
-
-        assertNotNull(generatedBitmap.get());
-        assertNull(errorThrown.get());
-        assertTrue(isFinished.get());
+        final GenerationResults generationResults = new GenerationResults();
+        generateQrCode(generationResults);
 
         // assert files are saved
         assertTrue(savedFile.exists());
         assertTrue(md5File.exists());
 
         String expectedData = "{\"general\":{},\"admin\":{}}";
-        assertQRContains(generatedBitmap.get(), expectedData);
+        assertQRContains(generationResults.generatedBitmap.get(), expectedData);
 
-        // verify that the md5 data in the cached file is correct
-        assertCachedFileIsCorrect(expectedData.getBytes(), md5File);
+        verifyCachedMd5Data(expectedData);
     }
 
     @Test
@@ -97,24 +98,27 @@ public class QRCodeUtilsTest {
         final long lastModifiedQRCode = savedFile.lastModified();
         final long lastModifiedCache = md5File.lastModified();
 
-        AtomicBoolean isFinished = new AtomicBoolean(false);
-        AtomicReference<Bitmap> generatedBitmap = new AtomicReference<>();
-        AtomicReference<Throwable> errorThrown = new AtomicReference<>();
-        ArrayList<String> list = new ArrayList<>();
-
-        // subscribe to the QRCode generator in the same thread
-        QRCodeUtils.getQRCodeGeneratorObservable(list)
-                .subscribe(generatedBitmap::set, errorThrown::set, () -> isFinished.set(true));
-
-        assertNotNull(generatedBitmap.get());
-        assertNull(errorThrown.get());
-        assertTrue(isFinished.get());
+        final GenerationResults generationResults = new GenerationResults();
+        generateQrCode(generationResults);
 
         // assert that files were not modified
         assertEquals(lastModifiedCache, md5File.lastModified());
         assertEquals(lastModifiedQRCode, savedFile.lastModified());
 
         // verify that the md5 data in the cached file is correct
+        verifyCachedMd5Data(expectedData);
+    }
+
+    public void generateQrCode(GenerationResults generationResults) {
+        // subscribe to the QRCode generator in the same thread
+        QRCodeUtils.getQRCodeGeneratorObservable(new ArrayList<>())
+                .subscribe(generationResults.generatedBitmap::set, generationResults.errorThrown::set, () -> generationResults.isFinished.set(true));
+
+        generationResults.assertGeneratedOk();
+    }
+
+    /** Verifies that the md5 data in the cached file is correct */
+    private void verifyCachedMd5Data(String expectedData) throws NoSuchAlgorithmException {
         assertCachedFileIsCorrect(expectedData.getBytes(), md5File);
     }
 
