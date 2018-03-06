@@ -87,13 +87,16 @@ public class ColorPickerDialog extends Dialog {
     }
 
     private static class ColorPickerView extends View {
+        public static final int DIALOG_MARGIN = 10;
+        public static final int NUM_HUES = 360;
+        public static final int DIALOG_WIDTH = NUM_HUES + 2 * DIALOG_MARGIN;
         private Paint paint;
         private float currentHue = 0;
         private int currentX = 0;
         private int currentY = 0;
         private int currentColor;
         private int defaultColor;
-        private final int[] hueBarColors = new int[258];
+        private final int[] hueBarColors = new int[360];
         private int[] mainColors = new int[65536];
         private OnColorChangedListener listener;
 
@@ -113,36 +116,8 @@ public class ColorPickerDialog extends Dialog {
             currentColor = color;
 
             // Initialize the colors of the hue slider bar
-            int index = 0;
-            for (float i = 0; i < 256; i += 256 / 42) {
-                // Red (#f00) to pink (#f0f)
-                hueBarColors[index] = Color.rgb(255, 0, (int) i);
-                index++;
-            }
-            for (float i = 0; i < 256; i += 256 / 42) {
-                // Pink (#f0f) to blue (#00f)
-                hueBarColors[index] = Color.rgb(255 - (int) i, 0, 255);
-                index++;
-            }
-            for (float i = 0; i < 256; i += 256 / 42) {
-                // Blue (#00f) to light blue (#0ff)
-                hueBarColors[index] = Color.rgb(0, (int) i, 255);
-                index++;
-            }
-            for (float i = 0; i < 256; i += 256 / 42) {
-                // Light blue (#0ff) to green (#0f0)
-                hueBarColors[index] = Color.rgb(0, 255, 255 - (int) i);
-                index++;
-            }
-            for (float i = 0; i < 256; i += 256 / 42) {
-                // Green (#0f0) to yellow (#ff0)
-                hueBarColors[index] = Color.rgb((int) i, 255, 0);
-                index++;
-            }
-            for (float i = 0; i < 256; i += 256 / 42) {
-                // Yellow (#ff0) to red (#f00)
-                hueBarColors[index] = Color.rgb(255, 255 - (int) i, 0);
-                index++;
+            for (int i = 0; i < 360; ++i) {
+                hueBarColors[i] = Color.HSVToColor(new float[] {i, 1F, 1F});
             }
 
             // Initializes the Paint that will draw the View
@@ -153,45 +128,7 @@ public class ColorPickerDialog extends Dialog {
 
         // Get the current selected color from the hue bar
         private int getCurrentMainColor() {
-            int translatedHue = 255 - (int) (currentHue * 255 / 360);
-            int index = 0;
-            for (float i = 0; i < 256; i += 256 / 42) {
-                if (index == translatedHue) {
-                    return Color.rgb(255, 0, (int) i);
-                }
-                index++;
-            }
-            for (float i = 0; i < 256; i += 256 / 42) {
-                if (index == translatedHue) {
-                    return Color.rgb(255 - (int) i, 0, 255);
-                }
-                index++;
-            }
-            for (float i = 0; i < 256; i += 256 / 42) {
-                if (index == translatedHue) {
-                    return Color.rgb(0, (int) i, 255);
-                }
-                index++;
-            }
-            for (float i = 0; i < 256; i += 256 / 42) {
-                if (index == translatedHue) {
-                    return Color.rgb(0, 255, 255 - (int) i);
-                }
-                index++;
-            }
-            for (float i = 0; i < 256; i += 256 / 42) {
-                if (index == translatedHue) {
-                    return Color.rgb((int) i, 255, 0);
-                }
-                index++;
-            }
-            for (float i = 0; i < 256; i += 256 / 42) {
-                if (index == translatedHue) {
-                    return Color.rgb(255, 255 - (int) i, 0);
-                }
-                index++;
-            }
-            return Color.RED;
+            return Color.HSVToColor(new float[] {currentHue, 1f, 1f});
         }
 
         // Update the main field colors depending on the current selected hue
@@ -220,12 +157,11 @@ public class ColorPickerDialog extends Dialog {
 
         @Override
         protected void onDraw(Canvas canvas) {
-            int translatedHue = 255 - (int) (currentHue * 255 / 360);
             // Display all the colors of the hue bar with lines
-            for (int x = 0; x < 256; x++) {
+            for (int x = 0; x < 360; x++) {
                 // If this is not the current selected hue, display the actual
                 // color
-                if (translatedHue != x) {
+                if (currentHue != x) {
                     paint.setColor(hueBarColors[x]);
                     paint.setStrokeWidth(scaleFactor);
                 } else {
@@ -233,7 +169,8 @@ public class ColorPickerDialog extends Dialog {
                     paint.setColor(Color.BLACK);
                     paint.setStrokeWidth(3);
                 }
-                canvas.drawLine((x + 10) * scaleFactor, 0, (x + 10) * scaleFactor, 40 * scaleFactor, paint);
+                canvas.drawLine((x + DIALOG_MARGIN) * scaleFactor, 0,
+                        (x + DIALOG_MARGIN) * scaleFactor, 40 * scaleFactor, paint);
             }
 
             // Display the main field colors using LinearGradient
@@ -244,7 +181,8 @@ public class ColorPickerDialog extends Dialog {
                 Shader shader = new LinearGradient(0, 50 * scaleFactor, 0, 306 * scaleFactor, colors, null,
                         Shader.TileMode.REPEAT);
                 paint.setShader(shader);
-                canvas.drawLine((x + 10) * scaleFactor, 50 * scaleFactor, (x + 10) * scaleFactor, 306 * scaleFactor, paint);
+                canvas.drawLine((x + DIALOG_MARGIN) * scaleFactor, 50 * scaleFactor,
+                        (x + DIALOG_MARGIN) * scaleFactor, 306 * scaleFactor, paint);
             }
             paint.setShader(null);
 
@@ -287,7 +225,7 @@ public class ColorPickerDialog extends Dialog {
 
         @Override
         protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-            setMeasuredDimension(276 * scaleFactor, 366 * scaleFactor);
+            setMeasuredDimension(DIALOG_WIDTH * scaleFactor, 366 * scaleFactor);
         }
 
         private boolean afterFirstDown = false;
@@ -332,7 +270,7 @@ public class ColorPickerDialog extends Dialog {
             }
 
             // If the touch event is located in the hue bar
-            if (x > 10 * scaleFactor && x < 266 * scaleFactor && y > 0 * scaleFactor && y < 40 * scaleFactor) {
+            if (x > 10 * scaleFactor && x < 266 * scaleFactor && y > 0 && y < 40 * scaleFactor) {
                 // Update the main field colors
                 currentHue = (255 - x / scaleFactor) * 360 / 255;
                 updateMainColors();
