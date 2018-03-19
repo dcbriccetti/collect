@@ -15,27 +15,18 @@ import static org.junit.Assert.assertEquals;
 @RunWith(AndroidJUnit4.class)
 public class BitmapScaledToDisplayTest {
 
+    private void runScaleTest(int height, int width, int scaleHeight, int scaleWidth, int expectedHeight, int expectedWidth) {
+        new ScaleImageTest()
+                .createBitmap(height, width)
+                .scaleBitmapToDisplay(scaleHeight, scaleWidth)
+                .assertScaledBitmapDimensions(expectedHeight, expectedWidth);
+    }
     @Test
     public void scaleDownBitmapWhenPossible() {
-        new ScaleImageTest()
-                .createBitmap(1000, 1000)
-                .scaleBitmapToDisplay(500, 500)
-                .assertScaledBitmapDimensions(500, 500);
-
-        new ScaleImageTest()
-                .createBitmap(600, 800)
-                .scaleBitmapToDisplay(600, 200)
-                .assertScaledBitmapDimensions(150, 200);
-
-        new ScaleImageTest()
-                .createBitmap(500, 400)
-                .scaleBitmapToDisplay(250, 200)
-                .assertScaledBitmapDimensions(250, 200);
-
-        new ScaleImageTest()
-                .createBitmap(2000, 800)
-                .scaleBitmapToDisplay(300, 400)
-                .assertScaledBitmapDimensions(333, 133);
+        runScaleTest(1000, 1000, 500, 500, 500, 500);
+        runScaleTest( 600,  800, 600, 200, 150, 200);
+        runScaleTest( 500,  400, 250, 200, 250, 200);
+        runScaleTest(2000,  800, 300, 400, 333, 133);
     }
 
     @Test
